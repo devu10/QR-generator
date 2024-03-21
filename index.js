@@ -1,7 +1,7 @@
-import inquirer from "inquirer";
 import qr from "qr-image";
 import fs from "fs";
 import express from "express";
+import morgan from "morgan";
 import bodyParser from "body-parser";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
@@ -10,8 +10,9 @@ const app = express();
 const port = 3000;
 
 app.use(bodyParser.urlencoded({ extended: true }));
+//app.use(morgan("tiny")); //there few option for mogan like tiny or combined
 
-function testQr() {
+function QrImageFile() {
   return inquirer
     .prompt([
       {
@@ -31,14 +32,31 @@ function testQr() {
     });
 }
 
+function logger(req, res, next) {
+  console.log("Request method: " + req.method + " Request URL: " + req.url);
+  next();
+}
+
+function generateQr(msg) {
+  return qr.imageSync(msg, { type: "png" });
+}
+
+app.use(logger);
+
 app.get("/", (req, res) => {
-  console.log(__dirname);
+  // console.log(__dirname);
   // res.send("<h1>QR Code Home</h1><br><p>Form for qr</p>");
   res.sendFile(__dirname + "/public/index.html");
 });
 
 app.post("/submit", (req, res) => {
   console.log(req.body);
+  const message = req.body.message;
+  const qrimg = generateQr(message);
+  const qrimgBase64 = qrimg.toString("base64");
+
+  const imgSrc = `data:image/png;base64,${qrimgBase64}`;
+  res.send(`<img src="${imgSrc}" alt="QR">`);
 });
 
 app.listen(port, () => {
