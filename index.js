@@ -8,6 +8,7 @@ import { fileURLToPath } from "url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
 const port = 3000;
+var qrmessage;
 
 app.use(bodyParser.urlencoded({ extended: true }));
 //app.use(morgan("tiny")); //there few option for mogan like tiny or combined
@@ -33,7 +34,15 @@ function QrImageFile() {
 }
 
 function logger(req, res, next) {
-  console.log("Request method: " + req.method + " Request URL: " + req.url);
+  qrmessage = req.body["message"];
+  console.log(
+    "Request method: " +
+      req.method +
+      " Request URL: " +
+      req.url +
+      " Request body: " +
+      req.body
+  );
   next();
 }
 
@@ -50,9 +59,7 @@ app.get("/", (req, res) => {
 });
 
 app.post("/submit", (req, res) => {
-  console.log(req.body);
-  const message = req.body.message;
-  const qrimg = generateQr(message);
+  const qrimg = generateQr(qrmessage);
   const qrimgBase64 = qrimg.toString("base64");
 
   const imgSrc = `data:image/png;base64,${qrimgBase64}`;
