@@ -55,7 +55,9 @@ app.use(logger);
 app.get("/", (req, res) => {
   // console.log(__dirname);
   // res.send("<h1>QR Code Home</h1><br><p>Form for qr</p>");
-  res.sendFile(__dirname + "/public/index.html");
+  // moving index page in root directory for deploying in github
+  // res.sendFile(__dirname + "/public/index.html");
+  res.sendFile(__dirname + "/index.html");
 });
 
 app.post("/submit", (req, res) => {
